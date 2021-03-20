@@ -118,5 +118,3 @@ double qi(double data[4][10],int landa[], int i) {
         return (1-landai_1)*(qi(data, landa, i-1))*(1+betai) + betai;
     }
 }
-
-//function that calculate di~
