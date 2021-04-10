@@ -3,7 +3,7 @@
 //
 
 #pragma region des fonctions qui calculent les vecteurs independent des variables de decisions
-// Remarque : chaque fonction prend en parametre l'indice i et retourne le (i+1)eme coordinence de vecteur.
+// Remarque : chaque fonction prend en parametre l'indice i et retourne le (i+1)eme coordonne de vecteur.
 
 //vecteur N
 double N(double r[10], double p[10], double k[10]) {
