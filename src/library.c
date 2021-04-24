@@ -1,13 +1,20 @@
 #include <math.h>
 #include "library.h"
 #include <stdlib.h>
-//TODO calculer la fonctin objectif
+
+double function(double x) {
+    return (round(x * 1000) * 0.001);
+}
+
+
 
 // Remarque : le calcule des sommes et produits est fait en respectant la convention :
     /*
     * Soit I un ensemble fini, et (xi)i∈I une famille de nombres complexes.
     * Si I est vide, on convient que ∑xi = 0 pour i dans I et ∏xi = 1.
     * */
+
+
 
 #pragma region les donnees
 double beta[10] = {0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 , 0.1, 0.1};
@@ -40,7 +47,7 @@ double *E(double alpha[10], double ptilde[10], double dtilde[10], double rtilde[
     for (i = 0; i < n-1; i++) {
         double nominateur = alpha[i]*ptilde[i] * (alpha[i]*(ptilde[i] + rtilde[i])*dtilde[i] - k[i] * rtilde[i] * r[i + 1] * (rtilde[i + 1] - rtilde[i]));
         double denominateur = rtilde[i] * (ptilde[i] + rtilde[i]) * p[i + 1] * (r[i + 1] - rtilde[i + 1]) * (k[i] * r[i + 1] * (rtilde[i + 1] - rtilde[i]) - dtilde[i] * alpha[i]);
-        vect_E[i] = nominateur / denominateur;
+        vect_E[i] = function(nominateur / denominateur);
     }
     return vect_E;
 }
@@ -51,7 +58,7 @@ double *D(double ptilde[10], double dtilde[10], double rtilde[10], double alpha[
     for (i = 0; i < n-1; i++) {
         double nominateur = ptilde[i]*dtilde[i];
         double denominateur = rtilde[i] * (k[i] * ((r[i + 1] * (rtilde[i + 1] - rtilde[i])) / alpha[i]) - dtilde[i]);
-        vect_D[i] = nominateur / denominateur;
+        vect_D[i] = function(nominateur / denominateur);
     }
     return vect_D;
 }
@@ -62,7 +69,7 @@ double *C(double ptilde[10], double dtilde[10], double rtilde[10], double alpha[
     for (i = 0; i < n-1; i++) {
         double nominateur = ((k[i]-dtilde[i])*r[i+1]*(rtilde[i+1]-rtilde[i])-dtilde[i]*p[i+1]*(r[i+1]-rtilde[i+1])) * dtilde[i]*alpha[i] * (dtilde[i]*(ptilde[i]+rtilde[i])-k[i]*rtilde[i]);
         double dominateur = pow(dtilde[i]*(ptilde[i]+rtilde[i])*alpha[i]-k[i]*rtilde[i]*r[i+1]*(rtilde[i+1]-rtilde[i]),2);
-        vect_C[i] = nominateur/dominateur;
+        vect_C[i] = function(nominateur/dominateur);
     }
     return vect_C;
 }
@@ -73,7 +80,7 @@ double *B(double ptilde[10], double rtilde[10], double dtilde[10], double alpha[
     for (i = 0; i < n-1; i++) {
         double nominateur = k[i]*p[i+1]*(r[i+1]-rtilde[i+1]);
         double denominateur = ((rtilde[i] + ptilde[i]) * alpha[i]) - ((k[i] * rtilde[i] * r[i + 1] * (rtilde[i + 1] - rtilde[i])) / dtilde[i]);
-        vect_B[i] = nominateur / denominateur;
+        vect_B[i] = function(nominateur / denominateur);
     }
     return vect_B;
 }
@@ -84,7 +91,7 @@ double *A(double ptilde[10], double rtilde[10], double alpha[10], double dtilde[
     for (i = 0; i < n-1; i++) {
         double nominateur = k[i]*ptilde[i];
         double denominateur = pow(ptilde[i] + rtilde[i], 2) - ((k[i] * rtilde[i] * r[i + 1] * (rtilde[i] + ptilde[i]) * (rtilde[i + 1] - rtilde[i])) / (dtilde[i] * alpha[i]));
-        vect_A[i] = nominateur / denominateur;
+        vect_A[i] = function(nominateur / denominateur);
     }
     return vect_A;
 }
@@ -120,7 +127,7 @@ double Tn(double ptilde[10],double MUn, double rtilde[10], double RHOn) {
     double terme1 = cp*(k[n-1]*((andes*(ptilde[n-1]+rtilde[n-1])-rtilde[n-1]) / ((ptilde[n-1]+rtilde[n-1]) * (1 - RHOn) * ptilde[n-1])));
     double terme2 = (((ptilde[n-1]+rtilde[n-1])*(1-andes)) / (MUn*pow(1 - RHOn,2)*ptilde[n-1])) - (1/(MUn*(1-RHOn)));
     double terme3 = log((1/RHOn)*(1-((1-RHOn)/((1-andes)*((ptilde[n-1]+rtilde[n-1])/ptilde[n-1])))));
-    return terme1 + terme2 * terme3;
+    return function(terme1 + terme2 * terme3);
 
 }
 
@@ -284,17 +291,20 @@ double *ptilde(double rtilde[10], double *vect_ptilde) {
     int i = 0;
     vect_ptilde[i] = p[i];
     for (i = 1; i < n; i++) {
-        vect_ptilde[i] = rtilde[i]*((p[i]/r[i]) + ((p[i]*(r[i]-rtilde[i])*(r[i]+p[i]))/(pow(r[i],2)*(rtilde[i]-rtilde[i-1]))));
+        vect_ptilde[i] = function(rtilde[i]*((p[i]/r[i]) + ((p[i]*(r[i]-rtilde[i])*(r[i]+p[i]))/(pow(r[i],2)*(rtilde[i]-rtilde[i-1])))));
     }
     return vect_ptilde;
 }
 
 //vecteur q
 double *q(int lambda[10], double *vect_q) {
-    int i;
-    vect_q[0] = beta[0];
-    for (i = 0; i < n; i++) {
-        vect_q[i] = (1-lambda[i-1])*vect_q[i-1]*(1+beta[i]) + beta[i];
+    int i = 0;
+    vect_q[i] = beta[i];
+    double tmp[10];
+    tmp[i] = beta[i];
+    for (i = 1; i < n; i++) {
+        tmp[i] = (1-lambda[i-1]) * tmp[i-1] * (1+beta[i]) + beta[i];
+        vect_q [i]= function(tmp[i]);
     }
     return vect_q;
 }
@@ -308,6 +318,7 @@ double *dtilde(double q[10], int lambda[10], double *vect_dtilde) {
         int j;
         for (j = i; j < n; j++) {
             produit = produit*(1 + lambda[j]*q[j]);
+
         }
         vect_dtilde[i] = d*produit;
     }
@@ -332,7 +343,7 @@ double borneSup_7(double a[10], double rtilde[10], double b[10], int i) {
 
 
 
-
+//fonction objective
 double J(double *rtilde, int *lambda) {
     double *vect_N;
     vect_N = (double *)malloc(10*sizeof(double));
@@ -407,7 +418,7 @@ double J(double *rtilde, int *lambda) {
         printf("T[%d] = %lf\n", i, vect_T[i]);
     }
 
-    return terme_1 + cI*terme_2;
+    return function(terme_1 + cI*terme_2);
 
 }
 

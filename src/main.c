@@ -6,8 +6,5 @@ int main() {
 
     double fonction_objective = J(rtilde, lambda);
     printf("J = %lf\n", fonction_objective);
-
-
-
     return 0;
 }
