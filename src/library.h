@@ -49,7 +49,7 @@ double borneInf_7(double a[10], double rtilde[10], double b[10], int i);
 double borneSup_7(double a[10], double rtilde[10], double b[10], int i);
 */
 
-double function(double x);
+double preciser(double x);
 
 //fonction objective
 double J(double *rtilde, int *lambda);
