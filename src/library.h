@@ -1,6 +1,4 @@
-//
-// Created by aladdin on 3/20/21.
-//
+
 
 #ifndef OPTIMIZATION_LIBRARY_H
 #define OPTIMIZATION_LIBRARY_H
