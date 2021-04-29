@@ -3,7 +3,8 @@
 #include <stdlib.h>
 
 double function(double x) {
-    return (round(x * 1000) * 0.001);
+    //return (round(x * 1000) * 0.001);
+    return x;
 }
 
 
@@ -188,7 +189,7 @@ double *a(double M[10], double N[10], double *vect_a) {
 }
 
 //vecteur b
-double *b(double M[10], double N[10], double *vect_b) {
+double *b(double N[10], double *vect_b) {
     vect_b = (double *)malloc(10* sizeof(double));
 
     int i;
@@ -216,7 +217,7 @@ double *c(double M[10], double N[10], double *vect_c) {
 }
 
 //vecteur e
-double *e(double M[10], double N[10], double *vect_e) {
+double *e(double M[10], double *vect_e) {
     vect_e = (double *)malloc(10* sizeof(double));
 
     int i;
@@ -257,7 +258,7 @@ double borneInf_10(double a[10], double b[10], int i) {
     return produit + sum + b[i];
 }
 
-//borne superieur de ri~ definie dans (10)
+//borne superieur de ri~ definie dans (10)  //TODO : a reviser
 double borneSup_10(double c[10], double e[10], int i) {
     //decrementer i par 1, parceque l'indexation des tableaux commence par 0
     i--;
@@ -300,11 +301,13 @@ double *ptilde(double rtilde[10], double *vect_ptilde) {
 double *q(int lambda[10], double *vect_q) {
     int i = 0;
     vect_q[i] = beta[i];
+    //on utilise cette variable pour stocker les valeurs de vecteur q sans precision
     double tmp[10];
     tmp[i] = beta[i];
     for (i = 1; i < n; i++) {
         tmp[i] = (1-lambda[i-1]) * tmp[i-1] * (1+beta[i]) + beta[i];
-        vect_q [i]= function(tmp[i]);
+        vect_q[i] = function(tmp[i]);
+        //vecteur q apres la precision
     }
     return vect_q;
 }
@@ -320,7 +323,7 @@ double *dtilde(double q[10], int lambda[10], double *vect_dtilde) {
             produit = produit*(1 + lambda[j]*q[j]);
 
         }
-        vect_dtilde[i] = d*produit;
+        vect_dtilde[i] = function(d*produit);
     }
     return vect_dtilde;
 }
@@ -333,15 +336,13 @@ double borneInf_7(double a[10], double rtilde[10], double b[10], int i) {
 }
 
 //borne superieur de ri~ definie dans (7)
-double borneSup_7(double a[10], double rtilde[10], double b[10], int i) {
+double borneSup_7(double a[10], double rtilde[10], double b[10], int i) {// i vaire de 1 a 10
     //decrementer i par 1, parceque l'indexation des tableaux commence par 0
     i--;
     return a[i] * rtilde[i - 1] + b[i];
 }
 
 #pragma endregion
-
-
 
 //fonction objective
 double J(double *rtilde, int *lambda) {
@@ -406,19 +407,12 @@ double J(double *rtilde, int *lambda) {
     int i;
     for (i = 0; i < n-1; i++) {
         terme_1 += vect_T[i];
-        terme_2 += lambda[i] * vect_dtilde[i];
+        terme_2 += cI*lambda[i]*vect_dtilde[i];
     }
 
     terme_1 += terme_Tn;
-    terme_2 += lambda[n-1] * vect_dtilde[n-1];
+    terme_2 += cI*lambda[n-1] * vect_dtilde[n-1];
 
-    printf("%lf\n", terme_Tn);
-
-    for (i = 0; i < 10; i++) {
-        printf("T[%d] = %lf\n", i, vect_T[i]);
-    }
-
-    return function(terme_1 + cI*terme_2);
+    return function(terme_1 + terme_2);
 
 }
-
