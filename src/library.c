@@ -1,6 +1,4 @@
-#include <math.h>
 #include "library.h"
-#include <stdlib.h>
 
 double preciser(double x) {
     int a =(int) (x * 10000) - ((int) (x * 1000)) * 10;
@@ -142,102 +140,67 @@ double Tn(double ptilde[10],double MUn, double rtilde[10], double RHOn) {
 #pragma region 1.3) les bornes de ri~
 // Remarque : tout les fonction retournent un vecteur de taille 10, sauf les fonctions des bornes, ils retournent une valeur reele;
 //vecteur N
-double *N(double *vect_N) {
-    int i;
-    for (i = 0; i < n; i++) {
-        // calculer le produit de terme rj/(rj+pj) avec j varie de 0 a i-1
-        double produit = 1;
-        //si i dans l'intervalle [1,9]
-        int j;
-        for (j = 0; j <= i-1; j++) {
-            produit = produit * (r[j]/(r[j]+p[j]));
-        }
-
-        // calculer l'expression ((ri+pi)/riki)*d
-        double expression = ((r[i]+p[i])/r[i]*k[i])*d;
-
-        // la comparaison
-        if (produit >= expression) vect_N[i] = produit;
-        else vect_N[i] = expression;
+double N(int i) {
+    // calculer le produit de terme rj/(rj+pj) avec j varie de 0 a i-1
+    double produit = 1;
+    //si i dans l'intervalle [1,9]
+    int j;
+    for (j = 0; j <= i-1; j++) {
+        produit = produit * (r[j]/(r[j]+p[j]));
     }
-    return vect_N;
+
+    // calculer l'expression ((ri+pi)/riki)*d
+    double expression = ((r[i]+p[i])/r[i]*k[i])*d;
+
+    // la comparaison
+    if (produit >= expression) return produit;
+    else return expression;
 }
 
 //vecteur M
-double *M(double *vect_M) {
-    int i;
-    for (i = 0; i < n;  i++) {
-        // calculer le produit de terme ((rj+pj)/rj)*andes avec j varie de i a n
-        double produit = 1;
-        int j;
-        for (j = i; j < n; j++) {
-            produit = produit * ((r[j]+p[j])/r[j]);
-        }
-        produit = produit * andes;
-        //la comparaison
-        if (produit < 1) vect_M[i] = produit;
-        else vect_M[i] = 1;
+double M(int i) {
+    // calculer le produit de terme ((rj+pj)/rj)*andes avec j varie de i a n
+    double produit = 1;
+    int j;
+    for (j = i; j < n; j++) {
+        produit = produit * ((r[j]+p[j])/r[j]);
     }
-    return vect_M;
+    produit = produit * andes;
+    //la comparaison
+    if (produit < 1) return produit;
+    else return 1;
 }
 
 //vecteur a
-double *a(double M[10], double N[10], double *vect_a) {
-    int i;
-    for (i = 0; i < n; i++){
-        double nominateur = ((1-M[i])/M[i])*r[i];
-        double denominateur = ((1 - N[i]) / N[i]) * r[i] + p[i];
-        vect_a[i] = nominateur / denominateur;
-    }
-
-    return vect_a;
+double a(double M[10], double N[10], int i) {
+    double nominateur = ((1-M[i])/M[i])*r[i];
+    double denominateur = ((1 - N[i]) / N[i]) * r[i] + p[i];
+    return nominateur / denominateur;
 }
 
 //vecteur b
-double *b(double N[10], double *vect_b) {
-    vect_b = (double *)malloc(10* sizeof(double));
-
-    int i;
-    for (i = 0; i < n; i++) {
-        double nominateur = p[i]*r[i];
-        double denominateur = ((1 - N[i]) / N[i]) * r[i] + p[i];
-        vect_b[i] = nominateur / denominateur;
-    }
-
-    return vect_b;
+double b(double N[10], int i) {
+    double nominateur = p[i]*r[i];
+    double denominateur = ((1 - N[i]) / N[i]) * r[i] + p[i];
+    return nominateur / denominateur;
 }
 
 //vecteur c
-double *c(double M[10], double N[10], double *vect_c) {
-    vect_c = (double *)malloc(10* sizeof(double));
-
-    int i;
-    for (i = 0; i < n; i++) {
-        double nominateur = ((1-N[i])/N[i])*r[i];
-        double denominateur = ((1 - M[i]) / M[i]) * r[i] + p[i];
-        vect_c[i] = nominateur / denominateur;
-    }
-
-    return vect_c;
+double c(double M[10], double N[10], int i) {
+    double nominateur = ((1-N[i])/N[i])*r[i];
+    double denominateur = ((1 - M[i]) / M[i]) * r[i] + p[i];
+    return nominateur / denominateur;
 }
 
 //vecteur e
-double *e(double M[10], double *vect_e) {
-    vect_e = (double *)malloc(10* sizeof(double));
-
-    int i;
-    for (i = 0; i < n; i++) {
-        double nominateur = p[i]*r[i];
-        double denominateur = ((1 - M[i]) / M[i]) * r[i] + p[i];
-        vect_e[i] = nominateur / denominateur;
-    }
-    return vect_e;
+double e(double M[10], int i) {
+    double nominateur = p[i]*r[i];
+    double denominateur = ((1 - M[i]) / M[i]) * r[i] + p[i];
+    return nominateur / denominateur;
 }
 
 //borne inferieur de ri~ definie dans (10)
 double borneInf_10(double a[10], double b[10], int i) {
-    //decrementer i par 1, parceque l'indexation des tableaux commence par 0
-    i--;
     //claculer le produit de terme aj avec j varie de 1 a i
     int j;
     double produit = 1;
@@ -265,8 +228,6 @@ double borneInf_10(double a[10], double b[10], int i) {
 
 //borne superieur de ri~ definie dans (10)  //TODO : a reviser
 double borneSup_10(double c[10], double e[10], int i) {
-    //decrementer i par 1, parceque l'indexation des tableaux commence par 0
-    i--;
     //claculer le produit de terme cj avec j varie de 1 a i
     int j;
     double produit = 1;
@@ -331,15 +292,11 @@ double *dtilde(double q[10], int lambda[10], double *vect_dtilde) {
 
 //borne inferieur de ri~ definie dans (7)
 double borneInf_7(double a[10], double rtilde[10], double b[10], int i) {
-    //decrementer i par 1, parceque l'indexation des tableaux commence par 0
-    i--;
     return a[i] * rtilde[i - 1] + b[i];
 }
 
 //borne superieur de ri~ definie dans (7)
-double borneSup_7(double a[10], double rtilde[10], double b[10], int i) {// i vaire de 1 a 10
-    //decrementer i par 1, parceque l'indexation des tableaux commence par 0
-    i--;
+double borneSup_7(double a[10], double rtilde[10], double b[10], int i) {
     return a[i] * rtilde[i - 1] + b[i];
 }
 
@@ -347,56 +304,50 @@ double borneSup_7(double a[10], double rtilde[10], double b[10], int i) {// i va
 
 //fonction objective
 double J(double *rtilde, int *lambda) {
-    double *vect_N;
-    vect_N = (double *)malloc(10*sizeof(double));
-    N(vect_N);
+    int i;
+    double *vect_N = (double *)malloc(10*sizeof(double));
+    for (i = 0; i < 10; i++) {
+        vect_N[i] = N(i);
+    }
 
-    double *vect_M;
-    vect_M = (double *)malloc(10* sizeof(double));
-    M(vect_M);
+    double *vect_M = (double *)malloc(10* sizeof(double));
+    for (i = 0; i < 10; i++) {
+        vect_M[i] = M(i);
+    }
 
-    double *vect_a;
-    vect_a = (double *)malloc(10* sizeof(double));
-    a(vect_M, vect_N, vect_a);
+    double *vect_a = (double *)malloc(10* sizeof(double));
+    for (i = 0; i < 10; i++) {
+        vect_a[i] = a(vect_M, vect_N, i);
+    }
 
-    double *vect_q;
-    vect_q = (double *)malloc(10* sizeof(double));
+    double *vect_q = (double *)malloc(10* sizeof(double));
     q(lambda, vect_q);
 
-    double *vect_ptilde;
-    vect_ptilde = (double *)malloc(10 * sizeof(double));
+    double *vect_ptilde = (double *)malloc(10 * sizeof(double));
     ptilde(rtilde, vect_ptilde);
 
-    double *vect_dtilde;
-    vect_dtilde = (double *)malloc(10* sizeof(double));
+    double *vect_dtilde = (double *)malloc(10* sizeof(double));
     dtilde(vect_q, lambda, vect_dtilde);
 
-    double *vect_alpha;
-    vect_alpha = (double *)malloc(9* sizeof(double));
+    double *vect_alpha = (double *)malloc(9* sizeof(double));
     alpha(rtilde, vect_alpha);
 
-    double *vect_A;
-    vect_A = (double *)malloc(9*sizeof(double));
+    double *vect_A = (double *)malloc(9*sizeof(double));
     A(vect_ptilde, rtilde, vect_alpha, vect_dtilde, vect_A);
 
-    double *vect_B;
-    vect_B = (double *)malloc(9* sizeof(double));
+    double *vect_B = (double *)malloc(9* sizeof(double));
     B(vect_ptilde, rtilde, vect_dtilde, vect_alpha, vect_B);
 
-    double *vect_C;
-    vect_C = (double *)malloc(9* sizeof(double));
+    double *vect_C = (double *)malloc(9* sizeof(double));
     C(vect_ptilde, vect_dtilde, rtilde, vect_alpha, vect_C);
 
-    double *vect_D;
-    vect_D = (double *)malloc(9*sizeof(double));
+    double *vect_D = (double *)malloc(9*sizeof(double));
     D(vect_ptilde, vect_dtilde, rtilde, vect_alpha, vect_D);
 
-    double *vect_E;
-    vect_E = (double *)malloc(9* sizeof(double));
+    double *vect_E = (double *)malloc(9* sizeof(double));
     E(vect_alpha, vect_ptilde, vect_dtilde, rtilde, vect_E);
 
-    double *vect_T;
-    vect_T = (double *)malloc(9*sizeof(double));
+    double *vect_T = (double *)malloc(9*sizeof(double));
     T(vect_A, vect_B, vect_C, vect_D, vect_E, vect_T);
 
     double terme_MUn = MUn(vect_ptilde, vect_dtilde);
@@ -405,7 +356,6 @@ double J(double *rtilde, int *lambda) {
 
     double terme_1 = 0, terme_2 = 0;
 
-    int i;
     for (i = 0; i < n-1; i++) {
         terme_1 += vect_T[i];
         terme_2 += cI*lambda[i]*vect_dtilde[i];
@@ -414,6 +364,6 @@ double J(double *rtilde, int *lambda) {
     terme_1 += terme_Tn;
     terme_2 += cI*lambda[n-1] * vect_dtilde[n-1];
 
-    return preciser(terme_1 + terme_2);
+    return terme_1 + terme_2;
 
 }
