@@ -226,7 +226,7 @@ double borneInf_10(double a[10], double b[10], int i) {
     return produit + sum + b[i];
 }
 
-//borne superieur de ri~ definie dans (10)  //TODO : a reviser
+//borne superieur de ri~ definie dans (10)
 double borneSup_10(double c[10], double e[10], int i) {
     //claculer le produit de terme cj avec j varie de 1 a i
     int j;
