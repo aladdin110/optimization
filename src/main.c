@@ -31,6 +31,118 @@
     printf("\nLINDO API Version %s built on %s\n",szVersion,szBuild);\
 }\
 
+/****************************************************************
+   Standard callback function to display local solutions
+ ****************************************************************/
+int  LS_CALLTYPE local_sol_log(pLSmodel pModel,int iLoc, void *cbData)
+{
+    int iter=0,niter,biter,siter;
+    int *nKKT = (int *) cbData, npass=0, nbrn;
+    double pfeas=0.0,pobj=0.0;
+    double bestobj;
+    if (iLoc==LSLOC_LOCAL_OPT)
+    {
+        if (*nKKT == 0){
+            printf(" %5s %11s %11s %11s %10s\n",
+                   "Iter","Objective","Infeas","Best","Branches");
+        }
+        LSgetCallbackInfo(pModel,iLoc,LS_IINFO_MIP_NLP_ITER,&niter);
+        LSgetCallbackInfo(pModel,iLoc,LS_IINFO_MIP_SIM_ITER,&siter);
+        LSgetCallbackInfo(pModel,iLoc,LS_IINFO_MIP_BAR_ITER,&biter);
+        LSgetCallbackInfo(pModel,iLoc,LS_DINFO_POBJ,&pobj);
+        LSgetCallbackInfo(pModel,iLoc,LS_DINFO_PINFEAS,&pfeas);
+        LSgetCallbackInfo(pModel,iLoc,LS_DINFO_MSW_POBJ,&bestobj);
+        LSgetCallbackInfo(pModel,iLoc,LS_IINFO_MIP_BRANCHCOUNT,&nbrn);
+        iter = niter+siter+biter;
+        printf(" %5d %11.3f %11.3f %11.3f %10d\n",iter,pobj,pfeas,
+               bestobj,nbrn);
+        (*nKKT)++;
+    }
+    return 0;
+}
+
+/****************************************************************
+   Callback function to compute function values
+ ****************************************************************/
+int    CALLBACKTYPE Funcalc8(pLSmodel pModel,void    *pUserData,
+                             int      nRow  ,double  *pdX,
+                             int      nJDiff,double  dXJBase,
+                             double   *pdFuncVal,int  *pReserved)
+{
+    int i;
+
+    double *vect_N = (double *)malloc(10*sizeof(double));
+    for (i = 0; i < 10; i++) {
+        vect_N[i] = N(i);
+    }
+
+    double *vect_M = (double *)malloc(10* sizeof(double));
+    for (i = 0; i < 10; i++) {
+        vect_M[i] = M(i);
+    }
+
+    double val=0.0;
+
+    double *rtilde = (double *)malloc(10* sizeof(double));
+    int *lambda = (int *)malloc(10* sizeof(int));
+    for (i = 0; i < 10; i++) {
+        rtilde[i] = pdX[i];
+        lambda[i] = (int)pdX[10+i];
+    }
+
+    int    nerr=0;
+    /* compute objective's functional value*/
+    if (nRow == -1)
+        val = J(rtilde, lambda);
+        /* compute constaint 0's functional value */
+    else if (nRow == 0) {
+        for (i = 10; i < 20; i++) {
+            val = val + pdX[i];
+        }
+        val = val - m;
+    }
+        /* compute constaint 1's functional value */
+    else if (nRow == 1) val = pdX[0] - 0.8;
+        /* compute constaint 2's functional value */
+    else if (nRow == 2) val = rtilde[1] - b(vect_N, 1);
+        /* compute constaint 3's functional value */
+    else if (nRow == 3) val = rtilde[2] - b(vect_N, 2);
+        /* compute constaint 4's functional value */
+    else if (nRow == 4) val = rtilde[3] - b(vect_N, 3);
+        /* compute constaint 5's functional value */
+    else if (nRow == 5) val = rtilde[4] - b(vect_N, 4);
+        /* compute constaint 6's functional value */
+    else if (nRow == 6) val = rtilde[5] - b(vect_N, 5);
+        /* compute constaint 7's functional value */
+    else if (nRow == 7) val = rtilde[6] - b(vect_N, 6);
+        /* compute constaint 8's functional value */
+    else if (nRow == 8) val = rtilde[7] - b(vect_N, 7);
+        /* compute constaint 9's functional value */
+    else if (nRow == 9) val = rtilde[8] - b(vect_N, 8);
+        /* compute constaint 10's functional value */
+    else if (nRow == 10) val = rtilde[9] - b(vect_N, 9);
+        /* compute constaint 11's functional value */
+    else if (nRow == 11) val = c(vect_M, vect_N, 1)*rtilde[0] - rtilde[1] + e(vect_M, 1);
+        /* compute constaint 12's functional value */
+    else if (nRow == 12) val = c(vect_M, vect_N, 2)*rtilde[1] - rtilde[2] + e(vect_M, 2);
+        /* compute constaint 13's functional value */
+    else if (nRow == 13) val = c(vect_M, vect_N, 3)*rtilde[2] - rtilde[3] + e(vect_M, 3);
+        /* compute constaint 14's functional value */
+    else if (nRow == 14) val = c(vect_M, vect_N, 4)*rtilde[3] - rtilde[4] + e(vect_M, 4);
+        /* compute constaint 15's functional value */
+    else if (nRow == 15) val = c(vect_M, vect_N, 5)*rtilde[4] - rtilde[5] + e(vect_M, 5);
+        /* compute constaint 16's functional value */
+    else if (nRow == 16) val = c(vect_M, vect_N, 6)*rtilde[5] - rtilde[6] + e(vect_M, 6);
+        /* compute constaint 17's functional value */
+    else if (nRow == 17) val = c(vect_M, vect_N, 7)*rtilde[6] - rtilde[7] + e(vect_M, 7);
+        /* compute constaint 18's functional value */
+    else if (nRow == 18) val = c(vect_M, vect_N, 8)*rtilde[7] - rtilde[8] + e(vect_M, 8);
+        /* compute constaint 19's functional value */
+    else if (nRow == 19) val = c(vect_M, vect_N, 9)*rtilde[8] - rtilde[9] + e(vect_M, 9);
+
+    *pdFuncVal=val;
+    return nerr;
+}
 
 
 /* main entry point*/
@@ -81,7 +193,7 @@ int main() {
     pLSmodel pModel;
 
     char MY_LICENSE_KEY[1024];
-
+    int howmany = 0;
     /*****************************************************************
     * Create a model in the environment.
     *****************************************************************/
@@ -209,11 +321,7 @@ int main() {
 
 
     /* Load in nonzero structure and linear/constant terms*/
-    nErrorCode = LSloadLPData(pModel, nCons, nVars, LS_MIN, 0.0,
-                              objCoeff, rhs, contypes, nAnnz,
-                              A_column_index, A_column_length,
-                              A_nnz_values, A_row_index, lb, ub);
-
+    nErrorCode = LSloadLPData(pModel, nCons, nVars, LS_MIN, 0.0, objCoeff, rhs, contypes, nAnnz, A_column_index, A_column_length, A_nnz_values, A_row_index, lb, ub);
     APIERRORCHECK;
 
     nErrorCode=LSloadVarType(pModel,vartypes);
@@ -225,18 +333,77 @@ int main() {
     /*****************************************************************
     * Specify the NLP portion of the model.
     *****************************************************************/
+    /* The number of nonlinear variables in each column */
+    for (i = 0; i < 20; i++) {
+        A_column_length[i] = 0;
+    }
 
+    /* The indices of the first nonlinear variable in each column */
+    for (i = 0; i < 20; i++) {
+        A_column_index[i] = 0;
+    }
 
+    /* The indices of nonlinear constraints */
+    A_row_index[0] = 0;
+
+    /* The indices of variables that are nonlinear in the objective*/
+    int *NLobjndx = (int *)malloc(20* sizeof(int));
+    for (i = 0; i < 20; i++) {
+        NLobjndx[i] = i;
+    }
+
+    /* Number nonlinear variables in cost */
+    int numNLobj = 20;
+
+    /* Load the nonlinearstructure */
+    nErrorCode = LSloadNLPData(pModel, A_column_index, A_column_length, NULL, A_row_index, numNLobj, NLobjndx, NULL);
+    APIERRORCHECK;
     /*****************************************************************
     * Set up callback functions
     *****************************************************************/
+    /* Install the callback function to call at every local solution */
+    nErrorCode=LSsetCallback(pModel,(cbFunc_t) local_sol_log,&howmany);
+    APIERRORCHECK;
 
+    /* Set the print level to 1 */
+    nErrorCode=LSsetModelIntParameter(pModel,LS_IPARAM_NLP_PRINTLEVEL,1);
+    APIERRORCHECK;
+
+    /* Set the NLP prelevel to 0 */
+    nErrorCode=LSsetModelIntParameter(pModel,LS_IPARAM_NLP_PRELEVEL,0);
+    APIERRORCHECK;
+
+    /* Install the routine that will calculate the function values. */
+    nErrorCode=LSsetFuncalc(pModel,(Funcalc_type) Funcalc8,NULL);
+    APIERRORCHECK;
     /*****************************************************************
     * Solve the model
     *****************************************************************/
+    /* Turn multi-start search on */
+    nErrorCode=LSsetModelIntParameter(pModel,LS_IPARAM_NLP_SOLVER,LS_NMETHOD_MSW_GRG);
+    APIERRORCHECK;
 
-
-
+    /* Set maximum number of local optimizations */
+    nErrorCode=LSsetModelIntParameter(pModel,LS_IPARAM_NLP_MAXLOCALSEARCH,5);
+    APIERRORCHECK;
+    printf("\n\tSolving the MINLP using Multi-Start Approach.\n\n");
+    nErrorCode=LSsolveMIP(pModel,NULL);
+    APIERRORCHECK;
+    {
+        double objval, primal[20];
+        nErrorCode = LSgetMIPPrimalSolution(pModel, primal);
+        nErrorCode = LSgetInfo(pModel, LS_DINFO_MIP_OBJ, &objval);
+        if (nErrorCode == LSERR_NO_ERROR)
+        {
+            printf("\n\n\n");
+            printf("obj  = %15.7f \n",objval);
+            for (i=0; i<20; i++) printf("x[%d] = %15.7f \n",i,primal[i]);
+        }
+        else
+        {
+            printf("Error %d occured\n\n\n",nErrorCode);
+        }
+    }
 Terminate:
     /***************************************************************
      *  Terminate : Delete the model & env space
